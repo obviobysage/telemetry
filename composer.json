@@ -1,0 +1,39 @@
+{
+    "name": "obviobysage/telemetry",
+    "description": "A Telemetry package for the Obv.io ecosystem",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "ObvioBySage\\Telemetry\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ObvioBySage\\Telemetry\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Tyler Schwartz",
+            "email": "tyler@obv.io"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "illuminate/support": "^11.0",
+        "symfony/http-foundation": "^7.1.5",
+        "laravel/framework": "^11.0.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.3",
+        "orchestra/testbench": "^9.5"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ObvioBySage\\Telemetry\\TelemtryServiceProvider"
+            ]
+        }
+    }
+}
