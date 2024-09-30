@@ -30,6 +30,9 @@
         "orchestra/testbench": "^9.5"
     },
     "extra": {
+        "exclude": [
+            ".github/"
+        ],
         "laravel": {
             "providers": [
                 "ObvioBySage\\Telemetry\\TelemtryServiceProvider"
