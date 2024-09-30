@@ -1,1 +1,5 @@
 .github/* export-ignore
+.gitattributes
+.gitignore
+composer.lock
+phpunit.xml
