@@ -1,6 +1,6 @@
 {
     "name": "obviobysage/telemetry",
-    "version": "11.0.5",
+    "version": "11.0.6",
     "description": "A Telemetry package for the Obv.io ecosystem",
     "type": "library",
     "license": "MIT",
