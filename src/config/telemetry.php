@@ -1,7 +1,5 @@
 <?php
 
-use ObvioBySage\Telemetry\Transports\Transport;
-
 return [
     // Whether or not Telemetry should be sent for storage.
     'enabled' => env('TELEMETRY_ENABLED', false),
@@ -18,7 +16,7 @@ return [
 
     'connections' => [
         'redis' => [
-            'driver'     => Transport::DRIVER_REDIS,
+            'driver'     => 'redis',
             'connection' => env('TELEMETRY_REDIS_CONNECTION'),
             'queue'      => env('TELEMETRY_REDIS_QUEUE'),
         ],
