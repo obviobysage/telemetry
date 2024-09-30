@@ -13,7 +13,7 @@ class TelemtryServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind('Telemetry', Telemetry::class);
+        $this->app->bind('telemetry', Telemetry::class);
         $this->app->bind('RedisTransport', RedisTransport::class);
 
         $this->mergeConfigFrom(
