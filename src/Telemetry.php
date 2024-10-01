@@ -250,7 +250,7 @@ class Telemetry
         // We may need to obfuscate some of the data going into Telemetry.
         $payload = $this->getObfuscatedData($payload);
 
-        // IF the Telemetry backend requires an index (Elasticsearch, for instance),
+        // If the Telemetry backend requires an index (Elasticsearch, for instance),
         // now is the time to get the value for it.
         if (empty($index = $this->getIndex($this->event, $payload)) === false) {
             $payload[self::KEY_METADATA] = [
@@ -294,6 +294,8 @@ class Telemetry
         // Iterate the headers we WANT to log and attempt to get them from the
         // request so they can be added to the payload.
         foreach ($loggingHeaders as $header) {
+            $header = trim($header);
+
             empty($requestHeaders[$header]) === false ?
                 $filteredHeaders[$header] = implode(
                     ',',
@@ -346,6 +348,8 @@ class Telemetry
         // If there is an array of user attirbutes to include in the payload,
         // interate those and try to get them from the resolved $user object.
         foreach (config('telemetry.payloads.user.attributes', []) as $attribute) {
+            $attribute = trim($attribute);
+
             $data[$attribute] = $user->$attribute ?? null;
         }
 

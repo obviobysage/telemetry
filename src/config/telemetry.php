@@ -17,8 +17,8 @@ return [
     'connections' => [
         'redis' => [
             'driver'     => 'redis',
-            'connection' => env('TELEMETRY_REDIS_CONNECTION'),
-            'queue'      => env('TELEMETRY_REDIS_QUEUE'),
+            'connection' => env('TELEMETRY_REDIS_CONNECTION', 'default'),
+            'queue'      => env('TELEMETRY_REDIS_QUEUE', 'telemetry'),
         ],
     ],
 
@@ -32,8 +32,8 @@ return [
             // of headers will attempt to be resolved from the request object.
             // Comma-separated header keys are first attempted from the environment
             // config.
-            'headers' => empty(env('TELEMETRY_REQUEST_HEADERS')) === false ?
-                explode(',', env('TELEMETRY_REQUEST_HEADERS')) :
+            'headers' => empty(env('TELEMETRY_PAYLOADS_REQUEST_HEADERS')) === false ?
+                explode(',', env('TELEMETRY_PAYLOADS_REQUEST_HEADERS')) :
                 [
                     'accept',
                     'authorization',
@@ -52,8 +52,8 @@ return [
             // attributes will attempt to be resolved from the user object.
             // Comma-separated user attribute keys are first attempted from the
             // environment config.
-            'attributes' => empty(env('TELEMETRY_USER_ATTRIBUTES')) === false ?
-                explode(',', env('TELEMETRY_USER_ATTRIBUTES')) :
+            'attributes' => empty(env('TELEMETRY_PAYLOADS_USER_ATTRIBUTES')) === false ?
+                explode(',', env('TELEMETRY_PAYLOADS_USER_ATTRIBUTES')) :
                 [
                     'email',
                     'id',
@@ -63,7 +63,7 @@ return [
             // If there is a callback method on the application's user object,
             // the array returned from that method will be included in the user
             // attributes for the Telemetry payload.
-            'callback_method' => null,
+            'callback_method' => env('TELEMETRY_PAYLOADS_USER_CALLBACK_METHOD', null),
         ],
 
         // Payload attributes that should be obfuscated in the data going into
