@@ -614,4 +614,27 @@ class Telemetry
             throw $e;
         }
     }
+
+    /**
+     * Binds a thread identifier into the service container to link Telemetry
+     * documents together.
+     *
+     * @param  string|null $threadId
+     * @return string|null
+     */
+    public function threadId(string $threadId = null): string|null
+    {
+        if (is_null($threadId) === true) {
+            // When the incoming $threadId is null, we're being asked for the
+            // value out of the container. If it's bound, we'll return what's
+            // there, otherwise we can only return null;
+            return app()->bound(self::KEY_THREAD_IOC) === true ?
+                app(self::KEY_THREAD_IOC) :
+                null;
+        }
+
+        // We have a value, so we have to bind it to the container for other
+        // things that care to get it.
+        return app()->bind(self::KEY_THREAD_IOC, fn () => $threadId);
+    }
 }
