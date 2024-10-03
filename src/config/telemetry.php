@@ -76,6 +76,11 @@ return [
                 'password',
                 'password_confirmation',
             ],
+
+        // An array of variables that are included in every Telemetry payload that
+        // is processed. The 'vars' could also be a class name for a local
+        // implementation of the TelemetryVars contract.
+        'vars' => [],
     ],
 
     'notifications' => [

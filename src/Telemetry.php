@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use ObvioBySage\Telemetry\Contracts\TelemetryData;
 use ObvioBySage\Telemetry\Contracts\TelemetryIndexResolver;
+use ObvioBySage\Telemetry\Contracts\TelemetryVars;
 use ObvioBySage\Telemetry\Transports\Transport;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -72,11 +73,12 @@ class Telemetry
      * in Telemetry. This method allows the indication that we DO want the input
      * data included.
      *
-     * @param  bool  $withRequestData
+     * @param  array|bool|Request|null $withRequestData
      * @return Telemetry
      */
-    public function withRequestData(array|bool|Request $withRequestData = true)
-    {
+    public function withRequestData(
+        array|bool|Request|null $withRequestData = true
+    ): self {
         $this->requestData = $withRequestData;
 
         return $this;
@@ -87,10 +89,10 @@ class Telemetry
      * This is primarily used in a "request identification" event. But not only
      * limited to...
      *
-     * @param  Symfony\Component\HttpFoundation\Response  $respone
+     * @param  Response  $respone
      * @return Telemetry
      */
-    public function withResponseData(Response $response = null)
+    public function withResponseData(Response $response = null): self
     {
         $this->responseData = [
             'status'  => $response->getStatusCode(),
@@ -105,18 +107,19 @@ class Telemetry
      * Toggles the flag to indicate if the payload should include the currently
      * authenticated User.
      *
-     * @param  bool  $flag
+     * @param  array|bool|Arrayable|TelemetryData|null $flag
      * @return Telemetry
      */
-    public function withUserData($user = null): self
-    {
-        if ($user === false) {
+    public function withUserData(
+        array|bool|Arrayable|TelemetryData|null $withUserData = null
+    ): self {
+        if ($withUserData === false) {
             $this->withUser = false;
 
             return $this;
         }
 
-        $this->withUser = $user;
+        $this->withUser = $withUserData;
 
         return $this;
     }
@@ -128,7 +131,7 @@ class Telemetry
      * @param  string  $eventName
      * @return Telemetry
      */
-    public function event(string $eventName = null)
+    public function event(string $eventName = null): self
     {
         $this->event = $eventName;
 
@@ -139,12 +142,12 @@ class Telemetry
      * When given some first-class data to put into the Telemetry payload, ensure
      * it can be used, then massage it into the payload.
      *
-     * @param  array|Arrayable  $data
+     * @param  array|Arrayable|null  $data
      * @return Telemetry
      *
      * @throws Exception
      */
-    public function data(array|Arrayable $data = null)
+    public function data(array|Arrayable|null $data = null): self
     {
         // If the $data is Arrayable, we'll toArray() it.
         if ($data instanceof Arrayable) {
@@ -215,6 +218,10 @@ class Telemetry
             ],
         ];
 
+        // If there are any constants/variables defined in the application, get
+        // those into the payload.
+        $this->getVars($payload);
+
         // If the calling side has asked to include the request details into the
         // Telemetric being indexed, add it in.
         $this->getRequestData($payload);
@@ -261,6 +268,69 @@ class Telemetry
         return $payload;
     }
 
+    /**
+     * Merges any constants/variables for the application into the payload.
+     *
+     * @param  array $payload
+     * @return void
+     */
+    protected function getVars(array &$payload): void
+    {
+        $vars = config('telemetry.payloads.vars');
+
+        // If there are no variables in configuration, split.
+        if (empty($vars) === true) {
+            return;
+        }
+
+        // If the configured vars is an implementation of TelemetryVars, merge
+        // the returning array and leave.
+        if ($vars instanceof TelemetryVars) {
+            $payload = array_merge(
+                $payload,
+                $vars->getVars()
+            );
+
+            return;
+        }
+
+        // If $vars is a string, we assume it's a class that we need to instantiate
+        // to get the data out of.
+        if (is_string($vars) === true) {
+            // Try to get a TelemetryVars implementation out of the container,
+            // in case the application has defined one for some localized logic.
+            try {
+                $varsObj = app($vars);
+            } catch (BindingResolutionException $e) {
+                // We're not trying to do anything if there is no binding found in
+                // the container.
+                return;
+            }
+
+            $payload = array_merge(
+                $payload,
+                $varsObj->getVars()
+            );
+
+            return;
+        }
+
+        // If at this point the $vars we got out of configuration is not an array,
+        // exit, we can't do anything with it.
+        if (is_array($vars) === false) {
+            return;
+        }
+
+        // We have an array, so we'll merge it in and we're done.
+        $payload = array_merge($payload, $vars);
+    }
+
+    /**
+     * Gets the Request data for the payload. Whether the Request is being
+     * included or resolving the data from current request.
+     *
+     * @return void
+     */
     protected function getRequestData(array &$payload): void
     {
         // If "global" configuration is telling us no and our "local" requestData
@@ -320,7 +390,7 @@ class Telemetry
      * Gets the User data for the payload. Whether the User is being included or
      * resolving the User data from current, or supplied Auth model.
      *
-     * @return array
+     * @return void
      */
     protected function getUser(array &$payload): void
     {

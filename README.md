@@ -50,6 +50,14 @@ artisan vendor:publish --tag obvio-telemetry
 
 This will place a configuration file in `config/telemetry.php`, and from here it's in your hands.
 
+## Vars
+Through configuration, there is an array of data that can be included on every payload that is sent through to Telemetry. The idea here, is that there may be some common "constants" that the application should send through, perhaps for some identification purposes.
+
+The `vars` key in the `config/telemetry.php` configuration file can be an array
+of data. It could be an implementation of the `TelemetryVars` contract. Lastly, it could be a namespaced class name that will be resolved out of the container.
+
+With these three options, whatever logic you may have for the common vars should be covered.
+
 ## Request Payload
 Laravel's request is automatically included in the payload being shipped to the Telemetry storage. This can be toggled using an environment variable.
 

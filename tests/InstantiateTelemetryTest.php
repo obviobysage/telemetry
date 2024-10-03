@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use ObvioBySage\Telemetry\Telemetry;
 use ObvioBySage\Telemetry\Tests\Support\ArrayableData;
+use ObvioBySage\Telemetry\Tests\Support\AuthUser;
 use ObvioBySage\Telemetry\Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -113,11 +114,35 @@ class InstantiateTelemetryTest extends TestCase
 
         $this->assertFalse($this->getProperty($this->obj, 'withUser'));
 
-        $stringData = 'some-string';
-        $this->obj->withUserData($stringData);
+        $arrayData = ['some' => 'data'];
+        $this->obj->withUserData($arrayData);
 
-        $this->assertIsString($this->getProperty($this->obj, 'withUser'));
-        $this->assertEquals($stringData, $this->getProperty($this->obj, 'withUser'));
+        $this->assertIsArray($this->getProperty($this->obj, 'withUser'));
+        $this->assertEquals($arrayData, $this->getProperty($this->obj, 'withUser'));
+
+        $arrayableData = new ArrayableData('arrayable', 'data');
+        $this->obj->withUserData($arrayableData);
+
+        $this->assertInstanceOf(
+            ArrayableData::class,
+            $this->getProperty($this->obj, 'withUser')
+        );
+        $this->assertEquals(
+            $arrayableData,
+            $this->getProperty($this->obj, 'withUser')
+        );
+
+        $telemetryData = new AuthUser;
+        $this->obj->withUserData($telemetryData);
+
+        $this->assertInstanceOf(
+            AuthUser::class,
+            $this->getProperty($this->obj, 'withUser')
+        );
+        $this->assertEquals(
+            $telemetryData,
+            $this->getProperty($this->obj, 'withUser')
+        );
     }
 
     #[Test]
