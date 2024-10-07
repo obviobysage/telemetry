@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Stringable;
 use ObvioBySage\Telemetry\Contracts\TelemetryData;
 use ObvioBySage\Telemetry\Contracts\TelemetryIndexResolver;
 use ObvioBySage\Telemetry\Contracts\TelemetryVars;
@@ -503,6 +504,13 @@ class Telemetry
             // If we've got an UploadedFile, we only want to record the filename.
             if ($data instanceof UploadedFile) {
                 $payload[$key] = $data->getClientOriginalName();
+
+                continue;
+            }
+
+            // We'd like the string in this case.
+            if ($data instanceof Stringable) {
+                $payload[$key] = $data->toString();
 
                 continue;
             }
