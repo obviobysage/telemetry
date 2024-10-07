@@ -3,11 +3,13 @@
 namespace ObvioBySage\Telemetry\Tests;
 
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Stringable;
 use ObvioBySage\Telemetry\Telemetry;
 use ObvioBySage\Telemetry\Tests\Support\ArrayableData;
 use ObvioBySage\Telemetry\Tests\Support\AuthUser;
+use ObvioBySage\Telemetry\Tests\Support\IndexResolver;
 use ObvioBySage\Telemetry\Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -53,5 +55,20 @@ class GetTelemetryDataTest extends TestCase
             $result['uploaded']
         );
         $this->assertEquals($user->telemetryData(), $result['authUser']);
+    }
+
+    #[Test]
+    public function it_throws_exception_when_payload_includes_problem_data()
+    {
+        $payload = [
+            'notStringable' => new IndexResolver,
+        ];
+
+        $obj = new Telemetry;
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('TelemetryData Exception: ObvioBySage\Telemetry\Tests\Support\IndexResolver is an object that is not handled explicitly, does not implement Arrayable or TelemetryData and is not Stringable');
+
+        $result = $this->callMethod($obj, 'getTelemetryData', [$payload]);
     }
 }

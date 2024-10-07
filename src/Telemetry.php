@@ -15,7 +15,9 @@ use ObvioBySage\Telemetry\Contracts\TelemetryData;
 use ObvioBySage\Telemetry\Contracts\TelemetryIndexResolver;
 use ObvioBySage\Telemetry\Contracts\TelemetryVars;
 use ObvioBySage\Telemetry\Transports\Transport;
+use Symfony\Component\ErrorHandler\Error\FatalError;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class Telemetry
 {
@@ -508,21 +510,23 @@ class Telemetry
                 continue;
             }
 
-            // We'd like the string in this case.
-            if ($data instanceof Stringable) {
-                $payload[$key] = $data->toString();
+            // We'd like the string in this case, we don't have any specific type
+            // formatting. Wrapped in an exception in case what we have has a
+            // problem being a string.
+            try {
+                $payload[$key] = strval($data);
 
                 continue;
+            } catch (Throwable $e) {
+                // If we made it down here and the $data happens to be an object, we've
+                // entered a scenario that is a problem. We can't process the object's
+                // data, so Exception outta here.
+                throw new Exception(
+                    'TelemetryData Exception: ' . get_class($data) .
+                    ' is an object that is not handled explicitly, does not implement' .
+                    ' Arrayable or TelemetryData and is not Stringable'
+                );
             }
-
-            // If we made it down here and the $data happens to be an object, we've
-            // entered a scenario that is a problem. We can't process the object's
-            // data, so Exception outta here.
-            throw new Exception(
-                'TelemetryData Exception: ' . get_class($data) .
-                ' is an object that is not handled explicitly, does not implement' .
-                ' Arrayable or TelemetryData'
-            );
         }
 
         return $payload;
